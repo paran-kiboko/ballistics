@@ -1,10 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import mainReducer from './admin/mainAdmin';
+import ballisticsReducer from './ballistics/ballisticsSlice';
 
 export const store = configureStore({
     reducer: {
         main: mainReducer,
-        // 다른 리듀서들을 여기에 추가
+        ballistics: ballisticsReducer,
     },
 });
 export type AppThunk<ReturnType = void> = (dispatch: AppDispatch, getState: () => RootState) => ReturnType;
