@@ -234,20 +234,20 @@ export default function AddStats() {
               <div className="space-y-2">
                 {/* 팀 배정 영역 */}
                 <div className="space-y-2">
-                  <div id="yellow-team-card" className="p-3 border-2 border-yellow-400 rounded-lg bg-yellow-50 shadow-sm">
+                  <div id="yellow-team-card" className="p-3 border-2 border-green-400 rounded-lg bg-green-50 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium text-yellow-700 flex items-center">
-                        🟡 {yellowTeamName}
+                      <h4 className="font-medium text-green-700 flex items-center">
+                        🟢 {yellowTeamName}
                       </h4>
                       <button
                         onClick={() => setShowAddPlayerModal('yellow')}
-                        className="text-xs bg-yellow-500 text-white px-3 py-2 rounded hover:bg-yellow-600 transition-colors touch-manipulation cursor-pointer min-h-[32px] min-w-[50px]"
+                        className="text-xs bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 transition-colors touch-manipulation cursor-pointer min-h-[32px] min-w-[50px]"
                       >
                         + 추가
                       </button>
                     </div>
                     <div className="space-y-1">
-                      {yellowTeamMembers.map((member, index) => (
+                      {yellowTeamMembers.sort().map((member, index) => (
                         <div key={index} className="text-sm p-1 bg-white rounded border border-gray-200 flex items-center justify-between">
                           <span>{member} </span>
                           <button
@@ -280,7 +280,7 @@ export default function AddStats() {
                       </button>
                     </div>
                     <div className="space-y-1">
-                      {blueTeamMembers.map((member, index) => (
+                      {blueTeamMembers.sort().map((member, index) => (
                         <div key={index} className="text-sm p-1 bg-white rounded border border-gray-200 flex items-center justify-between">
                           <span>{member}</span>
                           <button
@@ -314,16 +314,16 @@ export default function AddStats() {
                       </button>
                     </div>
                     <div className="space-y-1">
-                      {unassignedMembers.map((member, index) => (
+                      {unassignedMembers.sort().map((member, index) => (
                         <div key={index} className="text-sm p-1 bg-white rounded border border-gray-200 flex items-center justify-between">
                           <span>{member}</span>
                           <div className="flex gap-1">
                             <button
                               onClick={() => addPlayerToTeam(member, 'yellow')}
-                              className="text-yellow-600 hover:text-yellow-800 text-xs px-1 touch-manipulation cursor-pointer min-h-[24px] min-w-[24px] flex items-center justify-center"
+                              className="text-green-600 hover:text-green-800 text-xs px-1 touch-manipulation cursor-pointer min-h-[24px] min-w-[24px] flex items-center justify-center"
                               title="형광팀으로 이동"
                             >
-                              🟡
+                              🟢
                             </button>
                             <button
                               onClick={() => addPlayerToTeam(member, 'blue')}
@@ -359,7 +359,15 @@ export default function AddStats() {
       {/* 우측 영역: 경기 진행 & 기록 */}
       <Card id="game-record-card" className="h-full bg-gradient-to-br from-white via-purple-50 to-pink-50 shadow-xl border-2 border-purple-200 flex flex-col overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg py-2 flex-shrink-0">
-          <CardTitle className="text-lg font-bold">⚽ 경기 기록</CardTitle>
+          <CardTitle className="flex items-center justify-between text-lg font-bold">
+            <span>⚽ 경기 기록</span>
+            <button 
+              className="text-white hover:bg-white/20 p-1 rounded transition-colors"
+              title="저장"
+            >
+              💾
+            </button>
+          </CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4 min-h-0">
           <div className="space-y-4">
@@ -369,14 +377,14 @@ export default function AddStats() {
                 {/* 형광팀 */}
                 <div id="yellow-team-score-area" className="flex-1">
                   <div 
-                    className="text-yellow-600 bg-yellow-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-200 transition-colors text-4xl font-bold text-center"
+                    className="text-green-600 bg-green-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-green-200 transition-colors text-4xl font-bold text-center"
                     onClick={() => handleTeamClick('yellow')}
                   >
-                    🟡 {editingTeam === 'yellow' ? (
+                    🟢 {editingTeam === 'yellow' ? (
                       <input
                         type="text"
                         defaultValue={yellowTeamName}
-                        className="bg-transparent border-b-2 border-yellow-600 outline-none text-4xl font-bold text-yellow-600 w-32"
+                        className="bg-transparent border-b-2 border-green-600 outline-none text-4xl font-bold text-green-600 w-32"
                         onBlur={(e) => handleTeamNameChange('yellow', e.target.value)}
                         onKeyDown={(e) => handleKeyPress(e, 'yellow')}
                         autoFocus
@@ -394,7 +402,7 @@ export default function AddStats() {
                           return quarterOrder.indexOf(a.quarter) - quarterOrder.indexOf(b.quarter);
                         })
                         .map((goal, index) => (
-                          <div key={index} className="text-xs text-yellow-700 flex items-center justify-between group hover:bg-yellow-50 px-1 rounded">
+                          <div key={index} className="text-xs text-green-700 flex items-center justify-between group hover:bg-green-50 px-1 rounded">
                             <span>
                               [{goal.quarter}] - ⚽ {goal.player} 
                               {goal.assist && <span> 🎯 {goal.assist}</span>}
@@ -412,7 +420,7 @@ export default function AddStats() {
                     </div>
                     <button 
                       onClick={() => openGoalModal('yellow')}
-                      className="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition-colors"
+                      className="text-xs bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600 transition-colors"
                     >
                       +추가
                     </button>
@@ -506,6 +514,7 @@ export default function AddStats() {
                               !selectedReferees.includes(participant.name) || 
                               participant.name === refereesByQuarter[quarter]
                             )
+                            .sort((a, b) => a.name.localeCompare(b.name))
                             .map((participant, index) => (
                               <option key={index} value={participant.name}>{participant.name}</option>
                             ))}
@@ -525,6 +534,7 @@ export default function AddStats() {
                               !selectedReferees.includes(participant.name) || 
                               participant.name === assistantRefereesByQuarter[quarter]?.[0]
                             )
+                            .sort((a, b) => a.name.localeCompare(b.name))
                             .map((participant, index) => (
                               <option key={index} value={participant.name}>{participant.name}</option>
                             ))}
@@ -560,6 +570,7 @@ export default function AddStats() {
                               !selectedReferees.includes(participant.name) || 
                               participant.name === assistantRefereesByQuarter[quarter]?.[1]
                             )
+                            .sort((a, b) => a.name.localeCompare(b.name))
                             .map((participant, index) => (
                               <option key={index} value={participant.name}>{participant.name}</option>
                             ))}
@@ -589,7 +600,7 @@ export default function AddStats() {
           <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">
-                {showAddPlayerModal === 'yellow' ? '🟡 ' + yellowTeamName : 
+                {showAddPlayerModal === 'yellow' ? '🟢 ' + yellowTeamName : 
                  showAddPlayerModal === 'blue' ? '🔵 ' + blueTeamName : 
                  '⚪ 미배정 인원'}에 추가
               </h3>
@@ -608,6 +619,7 @@ export default function AddStats() {
                          !blueTeamMembers.includes(participant.name) &&
                          !unassignedMembers.includes(participant.name)
                 })
+                .sort((a, b) => a.name.localeCompare(b.name))
                 .map((participant, index) => (
                   <button
                     key={index}
@@ -637,7 +649,7 @@ export default function AddStats() {
           <div className="bg-white rounded-lg p-6 w-96 max-w-md">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">
-                {showGoalModal.team === 'yellow' ? '🟡 ' + yellowTeamName : '🔵 ' + blueTeamName} 골 기록
+                {showGoalModal.team === 'yellow' ? '🟢 ' + yellowTeamName : '🔵 ' + blueTeamName} 골 기록
               </h3>
               <button
                 onClick={() => {
@@ -682,9 +694,11 @@ export default function AddStats() {
                   onChange={(e) => setSelectedGoalScorer(e.target.value)}
                 >
                   <option value="">선택하세요</option>
-                  {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers).map((member, index) => (
-                    <option key={index} value={member}>{member}</option>
-                  ))}
+                  {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers)
+                    .sort()
+                    .map((member, index) => (
+                      <option key={index} value={member}>{member}</option>
+                    ))}
                 </select>
               </div>
               
@@ -699,6 +713,7 @@ export default function AddStats() {
                   <option value="">선택하세요</option>
                   {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers)
                     .filter(member => member !== selectedGoalScorer)
+                    .sort()
                     .map((member, index) => (
                       <option key={index} value={member}>{member}</option>
                     ))}
@@ -716,6 +731,7 @@ export default function AddStats() {
                   <option value="">선택하세요</option>
                   {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers)
                     .filter(member => member !== selectedAssist)
+                    .sort()
                     .map((member, index) => (
                       <option key={index} value={member}>{member}</option>
                     ))}
