@@ -14,13 +14,27 @@ export default function AddStats() {
   const [blueTeamMembers, setBlueTeamMembers] = useState<string[]>(["박민수", "최영수"])
   const [unassignedMembers, setUnassignedMembers] = useState<string[]>(["정하늘", "송미래", "조현우", "윤서연"])
   const [showAddPlayerModal, setShowAddPlayerModal] = useState<'yellow' | 'blue' | 'unassigned' | null>(null)
-  const [yellowTeamGoals, setYellowTeamGoals] = useState<Array<{player: string, time: string, quarter: string}>>([
-    {player: "김철수", time: "15'", quarter: "1Q"},
-    {player: "이영희", time: "27'", quarter: "2Q"}
+  const [yellowTeamGoals, setYellowTeamGoals] = useState<Array<{player: string, time: string, quarter: string, assist?: string, semiAssist?: string}>>([
+    {player: "김철수", time: "15'", quarter: "Q1"},
+    {player: "이영희", time: "27'", quarter: "Q2"}
   ])
-  const [blueTeamGoals, setBlueTeamGoals] = useState<Array<{player: string, time: string, quarter: string}>>([
-    {player: "박민수", time: "42'", quarter: "3Q"}
+  const [blueTeamGoals, setBlueTeamGoals] = useState<Array<{player: string, time: string, quarter: string, assist?: string, semiAssist?: string}>>([
+    {player: "박민수", time: "42'", quarter: "Q3"}
   ])
+  
+  // Quarter-based referee tracking
+  const [refereesByQuarter, setRefereesByQuarter] = useState<{[key: string]: string}>({
+    Q1: "", Q2: "", Q3: "", Q4: ""
+  })
+  const [assistantRefereesByQuarter, setAssistantRefereesByQuarter] = useState<{[key: string]: string[]}>({
+    Q1: [], Q2: [], Q3: [], Q4: []
+  })
+  
+  // Goal record modal state
+  const [showGoalModal, setShowGoalModal] = useState<{team: 'yellow' | 'blue', quarter: string} | null>(null)
+  const [selectedGoalScorer, setSelectedGoalScorer] = useState("")
+  const [selectedAssist, setSelectedAssist] = useState("")
+  const [selectedSemiAssist, setSelectedSemiAssist] = useState("")
 
 
   const handleTeamNameChange = (team: 'yellow' | 'blue', newName: string) => {
@@ -111,14 +125,98 @@ export default function AddStats() {
     setUnassignedMembers(unassignedMembers.filter(name => name !== playerName))
   }
 
+  // Quarter-based referee handlers
+  const handleQuarterRefereeChange = (quarter: string, value: string) => {
+    setRefereesByQuarter(prev => ({
+      ...prev,
+      [quarter]: value
+    }))
+  }
+
+  const handleQuarterAssistantRefereeChange = (quarter: string, index: number, value: string) => {
+    setAssistantRefereesByQuarter(prev => {
+      const newAssistants = [...(prev[quarter] || [])]
+      if (value === "") {
+        newAssistants.splice(index, 1)
+      } else {
+        newAssistants[index] = value
+      }
+      return {
+        ...prev,
+        [quarter]: newAssistants
+      }
+    })
+  }
+
+  const removeQuarterAssistantReferee = (quarter: string, index: number) => {
+    setAssistantRefereesByQuarter(prev => {
+      const newAssistants = (prev[quarter] || []).filter((_, i) => i !== index)
+      return {
+        ...prev,
+        [quarter]: newAssistants
+      }
+    })
+  }
+
+  // Helper function to get all selected referees for a quarter
+  const getSelectedRefereesForQuarter = (quarter: string) => {
+    const selected: string[] = []
+    if (refereesByQuarter[quarter]) {
+      selected.push(refereesByQuarter[quarter])
+    }
+    if (assistantRefereesByQuarter[quarter]) {
+      selected.push(...assistantRefereesByQuarter[quarter])
+    }
+    return selected.filter(Boolean) // Remove empty strings
+  }
+
+  // Goal record handlers
+  const handleAddGoalRecord = () => {
+    if (!showGoalModal || !selectedGoalScorer) return
+
+    const newGoal = {
+      player: selectedGoalScorer,
+      time: "", // We're not using time anymore
+      quarter: showGoalModal.quarter,
+      assist: selectedAssist,
+      semiAssist: selectedSemiAssist
+    }
+
+    if (showGoalModal.team === 'yellow') {
+      setYellowTeamGoals([...yellowTeamGoals, newGoal])
+    } else {
+      setBlueTeamGoals([...blueTeamGoals, newGoal])
+    }
+
+    // Reset modal state
+    setShowGoalModal(null)
+    setSelectedGoalScorer("")
+    setSelectedAssist("")
+    setSelectedSemiAssist("")
+  }
+
+  const openGoalModal = (team: 'yellow' | 'blue') => {
+    // Determine current quarter based on existing goals or default to Q1
+    const currentQuarter = 'Q1' // You might want to make this dynamic
+    setShowGoalModal({ team, quarter: currentQuarter })
+  }
+
+  const deleteGoalRecord = (team: 'yellow' | 'blue', index: number) => {
+    if (team === 'yellow') {
+      setYellowTeamGoals(yellowTeamGoals.filter((_, i) => i !== index))
+    } else {
+      setBlueTeamGoals(blueTeamGoals.filter((_, i) => i !== index))
+    }
+  }
+
   return (
-    <div id="add-stats-container" className="grid grid-cols-[1fr_3fr] gap-4 h-full">
-      {/* 좌측 영역: 날짜 선택 & 참여자 관리 */}
-      <Card id="game-settings-card" className="h-full bg-gradient-to-br from-white via-blue-50 to-cyan-50 shadow-xl border-2 border-blue-200 flex flex-col">
+    <div id="add-stats-container" className="grid grid-cols-[1fr_3fr] gap-4 h-full overflow-hidden">
+      {/* 좌측 영역: 날짜 선택 & Check-In */}
+      <Card id="game-settings-card" className="h-full bg-gradient-to-br from-white via-blue-50 to-cyan-50 shadow-xl border-2 border-blue-200 flex flex-col overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-lg py-2 flex-shrink-0">
           <CardTitle className="text-lg font-bold">📅 경기 설정</CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-4">
+        <CardContent className="flex-1 overflow-y-auto p-4 min-h-0">
           <div className="space-y-3">
             {/* 날짜 선택 */}
             <div id="game-date-section" className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
@@ -132,7 +230,7 @@ export default function AddStats() {
             
             {/* 참여자 목록 */}
             <div id="participants-management-section" className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
-              <h3 className="font-medium mb-2 text-gray-800">👥 참여자 관리</h3>
+              <h3 className="font-medium mb-2 text-gray-800">👥 Check-In</h3>
               <div className="space-y-2">
                 {/* 팀 배정 영역 */}
                 <div className="space-y-2">
@@ -151,7 +249,7 @@ export default function AddStats() {
                     <div className="space-y-1">
                       {yellowTeamMembers.map((member, index) => (
                         <div key={index} className="text-sm p-1 bg-white rounded border border-gray-200 flex items-center justify-between">
-                          <span>{member} ✅</span>
+                          <span>{member} </span>
                           <button
                             onClick={() => removePlayerFromTeam(member, 'yellow')}
                             className="text-red-500 hover:text-red-700 text-xs touch-manipulation cursor-pointer min-h-[24px] min-w-[24px] flex items-center justify-center"
@@ -184,7 +282,7 @@ export default function AddStats() {
                     <div className="space-y-1">
                       {blueTeamMembers.map((member, index) => (
                         <div key={index} className="text-sm p-1 bg-white rounded border border-gray-200 flex items-center justify-between">
-                          <span>{member} ✅</span>
+                          <span>{member}</span>
                           <button
                             onClick={() => removePlayerFromTeam(member, 'blue')}
                             className="text-red-500 hover:text-red-700 text-xs touch-manipulation cursor-pointer min-h-[24px] min-w-[24px] flex items-center justify-center"
@@ -218,7 +316,7 @@ export default function AddStats() {
                     <div className="space-y-1">
                       {unassignedMembers.map((member, index) => (
                         <div key={index} className="text-sm p-1 bg-white rounded border border-gray-200 flex items-center justify-between">
-                          <span>{member} 📋</span>
+                          <span>{member}</span>
                           <div className="flex gap-1">
                             <button
                               onClick={() => addPlayerToTeam(member, 'yellow')}
@@ -259,14 +357,14 @@ export default function AddStats() {
       </Card>
       
       {/* 우측 영역: 경기 진행 & 기록 */}
-      <Card id="game-record-card" className="h-full bg-gradient-to-br from-white via-purple-50 to-pink-50 shadow-xl border-2 border-purple-200 flex flex-col">
+      <Card id="game-record-card" className="h-full bg-gradient-to-br from-white via-purple-50 to-pink-50 shadow-xl border-2 border-purple-200 flex flex-col overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg py-2 flex-shrink-0">
           <CardTitle className="text-lg font-bold">⚽ 경기 기록</CardTitle>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-4">
+        <CardContent className="flex-1 overflow-y-auto p-4 min-h-0">
           <div className="space-y-4">
             {/* 점수 표시 */}
-            <div id="score-display-section" className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+            <div id="score-display-section" className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm min-h-[200px]">
               <div className="flex items-start justify-between">
                 {/* 형광팀 */}
                 <div id="yellow-team-score-area" className="flex-1">
@@ -288,16 +386,40 @@ export default function AddStats() {
                     )} {yellowTeamGoals.length}
                   </div>
                   {/* 형광팀 골 기록 */}
-                  <div className="mt-3 space-y-1">
-                    {yellowTeamGoals.map((goal, index) => (
-                      <div key={index} className="text-sm text-yellow-700 bg-yellow-50 px-3 py-1 rounded-md border border-yellow-200">
-                        ⚽ {goal.player} ({goal.time}) - {goal.quarter}
-                      </div>
-                    ))}
+                  <div className="mt-2 flex items-start gap-2">
+                    <div className="space-y-0.5 flex-1">
+                      {yellowTeamGoals
+                        .sort((a, b) => {
+                          const quarterOrder = ['Q1', 'Q2', 'Q3', 'Q4'];
+                          return quarterOrder.indexOf(a.quarter) - quarterOrder.indexOf(b.quarter);
+                        })
+                        .map((goal, index) => (
+                          <div key={index} className="text-xs text-yellow-700 flex items-center justify-between group hover:bg-yellow-50 px-1 rounded">
+                            <span>
+                              [{goal.quarter}] - ⚽ {goal.player} 
+                              {goal.assist && <span> 🎯 {goal.assist}</span>}
+                              {goal.semiAssist && <span> 👍 {goal.semiAssist}</span>}
+                            </span>
+                            <button
+                              onClick={() => deleteGoalRecord('yellow', index)}
+                              className="text-red-500 hover:text-red-700 ml-2 text-xs"
+                              title="삭제"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                    <button 
+                      onClick={() => openGoalModal('yellow')}
+                      className="text-xs bg-yellow-500 text-white px-2 py-1 rounded hover:bg-yellow-600 transition-colors"
+                    >
+                      +추가
+                    </button>
                   </div>
                 </div>
                 
-                <div className="text-gray-600 text-2xl mx-4">VS</div>
+                <div className="text-gray-600 text-2xl mx-4 self-center">VS</div>
                 
                 {/* 파랑팀 */}
                 <div id="blue-team-score-area" className="flex-1">
@@ -305,6 +427,7 @@ export default function AddStats() {
                     className="text-blue-600 bg-blue-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-blue-200 transition-colors text-4xl font-bold text-center"
                     onClick={() => handleTeamClick('blue')}
                   >
+                    {blueTeamGoals.length}&nbsp;
                     🔵 {editingTeam === 'blue' ? (
                       <input
                         type="text"
@@ -316,118 +439,144 @@ export default function AddStats() {
                       />
                     ) : (
                       blueTeamName
-                    )} {blueTeamGoals.length}
+                    )} 
                   </div>
                   {/* 파랑팀 골 기록 */}
-                  <div className="mt-3 space-y-1">
-                    {blueTeamGoals.map((goal, index) => (
-                      <div key={index} className="text-sm text-blue-700 bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
-                        ⚽ {goal.player} ({goal.time}) - {goal.quarter}
-                      </div>
-                    ))}
+                  <div className="mt-2 flex items-start gap-2">
+                    <div className="space-y-0.5 flex-1">
+                      {blueTeamGoals
+                        .sort((a, b) => {
+                          const quarterOrder = ['Q1', 'Q2', 'Q3', 'Q4'];
+                          return quarterOrder.indexOf(a.quarter) - quarterOrder.indexOf(b.quarter);
+                        })
+                        .map((goal, index) => (
+                          <div key={index} className="text-xs text-blue-700 flex items-center justify-between group hover:bg-blue-50 px-1 rounded">
+                            <span>
+                              [{goal.quarter}] - ⚽ {goal.player} 
+                              {goal.assist && <span> 🎯 {goal.assist}</span>}
+                              {goal.semiAssist && <span> 👍 {goal.semiAssist}</span>}
+                            </span>
+                            <button
+                              onClick={() => deleteGoalRecord('blue', index)}
+                              className="text-red-500 hover:text-red-700 ml-2 text-xs"
+                              title="삭제"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                    <button 
+                      onClick={() => openGoalModal('blue')}
+                      className="text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 transition-colors"
+                    >
+                      +추가
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
             
-            {/* 쿼터별 기록 */}
-            <div id="quarter-records-section" className="grid grid-cols-4 gap-3">
-              {['1Q', '2Q', '3Q', '4Q'].map((quarter, index) => (
-                <div key={quarter} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
-                  <h4 className="font-medium text-center mb-2 text-gray-800">{quarter}</h4>
-                  <div className="space-y-1 text-xs">
-                    <div className="text-gray-600 bg-gray-50 p-1 rounded border">
-                      ⚽ 김철수 (15')
-                    </div>
-                    <div className="text-gray-600 bg-gray-50 p-1 rounded border">
-                      🎯 이영희 → 김철수
-                    </div>
-                  </div>
-                  <button className="w-full mt-2 p-2 rounded text-sm font-medium transition-all hover:bg-blue-600 bg-blue-500 text-white">
-                    기록 추가
-                  </button>
-                </div>
-              ))}
-            </div>
-            
-            {/* 주심/부심 선택 */}
-            <div id="referee-selection-section" className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
-              <h3 className="font-medium mb-2 text-gray-800">👨‍⚖️ 심판 선택</h3>
-              <div className="space-y-3">
-                <div>
-                  <label className="block font-medium mb-1 text-gray-700">주심</label>
-                  <select 
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all"
-                    value={referee}
-                    onChange={(e) => setReferee(e.target.value)}
-                  >
-                    <option value="">주심 선택</option>
-                    {participantsData.map((participant, index) => (
-                      <option key={index} value={participant.name}>{participant.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label className="block font-medium text-gray-700">부심 ({assistantReferees.length}/2)</label>
-                    {assistantReferees.length < 2 && (
-                      <button
-                        type="button"
-                        onClick={addAssistantReferee}
-                        className="text-blue-500 hover:text-blue-700 text-sm font-medium"
-                      >
-                        + 추가
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
+            {/* 주심/부심 선택 - 쿼터별 */}
+            <div id="referee-selection-section" className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+              <div className="grid grid-cols-4 gap-2 mb-2">
+                <h3 className="font-medium text-gray-800 text-sm">👨‍⚖️ 심판 선택</h3>
+                <div className="text-xs font-medium text-gray-600 text-center">주심</div>
+                <div className="text-xs font-medium text-gray-600 text-center">부심 1</div>
+                <div className="text-xs font-medium text-gray-600 text-center">부심 2</div>
+              </div>
+              <div className="space-y-2">
+                {['Q1', 'Q2', 'Q3', 'Q4'].map((quarter) => {
+                  const selectedReferees = getSelectedRefereesForQuarter(quarter)
+                  return (
+                    <div key={quarter} className="grid grid-cols-4 gap-2 items-center">
+                      {/* Quarter Label */}
+                      <div className="font-bold text-sm text-gray-700">{quarter}</div>
+                      
+                      {/* 주심 */}
+                      <div>
+                        <select 
+                          className="w-full p-1.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all text-xs"
+                          value={refereesByQuarter[quarter] || ""}
+                          onChange={(e) => handleQuarterRefereeChange(quarter, e.target.value)}
+                        >
+                          <option value="">선택</option>
+                          {participantsData
+                            .filter(participant => 
+                              !selectedReferees.includes(participant.name) || 
+                              participant.name === refereesByQuarter[quarter]
+                            )
+                            .map((participant, index) => (
+                              <option key={index} value={participant.name}>{participant.name}</option>
+                            ))}
+                        </select>
+                      </div>
+                    
                     {/* 부심 1 */}
                     <div className="flex gap-1">
-                      <select
-                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all text-sm"
-                        value={assistantReferees[0] || ""}
-                        onChange={(e) => handleAssistantRefereeChange(0, e.target.value)}
-                      >
-                        <option value="">부심 1</option>
-                        {participantsData.map((participant, index) => (
-                          <option key={index} value={participant.name}>{participant.name}</option>
-                        ))}
-                      </select>
-                      {assistantReferees.length > 0 && assistantReferees[0] && (
-                        <button
-                          type="button"
-                          onClick={() => removeAssistantReferee(0)}
-                          className="px-1 py-1 text-red-500 hover:text-red-700 text-sm"
+                        <select
+                          className="flex-1 p-1.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all text-xs"
+                          value={assistantRefereesByQuarter[quarter]?.[0] || ""}
+                          onChange={(e) => handleQuarterAssistantRefereeChange(quarter, 0, e.target.value)}
                         >
-                          ✕
-                        </button>
-                      )}
+                          <option value="">선택</option>
+                          {participantsData
+                            .filter(participant => 
+                              !selectedReferees.includes(participant.name) || 
+                              participant.name === assistantRefereesByQuarter[quarter]?.[0]
+                            )
+                            .map((participant, index) => (
+                              <option key={index} value={participant.name}>{participant.name}</option>
+                            ))}
+                        </select>
+                        {assistantRefereesByQuarter[quarter]?.[0] && (
+                          <button
+                            type="button"
+                            onClick={() => removeQuarterAssistantReferee(quarter, 0)}
+                            className="px-1.5 py-0.5 text-red-500 hover:text-red-700 text-xs"
+                          >
+                            ✕
+                          </button>
+                        )}
                     </div>
                     
                     {/* 부심 2 */}
                     <div className="flex gap-1">
-                      <select
-                        className="flex-1 p-2 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all text-sm"
-                        value={assistantReferees[1] || ""}
-                        onChange={(e) => handleAssistantRefereeChange(1, e.target.value)}
-                      >
-                        <option value="">부심 2</option>
-                        {participantsData.map((participant, index) => (
-                          <option key={index} value={participant.name}>{participant.name}</option>
-                        ))}
-                      </select>
-                      {assistantReferees.length > 1 && assistantReferees[1] && (
-                        <button
-                          type="button"
-                          onClick={() => removeAssistantReferee(1)}
-                          className="px-1 py-1 text-red-500 hover:text-red-700 text-sm"
+                        <select
+                          className="flex-1 p-1.5 border border-gray-300 rounded-lg focus:border-blue-500 focus:ring-1 focus:ring-blue-200 transition-all text-xs"
+                          value={assistantRefereesByQuarter[quarter]?.[1] || ""}
+                          onChange={(e) => {
+                            if (!assistantRefereesByQuarter[quarter]?.[0] && e.target.value) {
+                              // 부심 1이 비어있으면 먼저 부심 1에 추가
+                              handleQuarterAssistantRefereeChange(quarter, 0, e.target.value)
+                            } else {
+                              handleQuarterAssistantRefereeChange(quarter, 1, e.target.value)
+                            }
+                          }}
                         >
-                          ✕
-                        </button>
-                      )}
+                          <option value="">선택</option>
+                          {participantsData
+                            .filter(participant => 
+                              !selectedReferees.includes(participant.name) || 
+                              participant.name === assistantRefereesByQuarter[quarter]?.[1]
+                            )
+                            .map((participant, index) => (
+                              <option key={index} value={participant.name}>{participant.name}</option>
+                            ))}
+                        </select>
+                        {assistantRefereesByQuarter[quarter]?.[1] && (
+                          <button
+                            type="button"
+                            onClick={() => removeQuarterAssistantReferee(quarter, 1)}
+                            className="px-1.5 py-0.5 text-red-500 hover:text-red-700 text-xs"
+                          >
+                            ✕
+                          </button>
+                        )}
                     </div>
                   </div>
-                </div>
+                  )
+                })}
               </div>
             </div>
           </div>
@@ -477,6 +626,127 @@ export default function AddStats() {
                   추가할 수 있는 참여자가 없습니다
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* Goal Record Modal */}
+      {showGoalModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-96 max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-medium">
+                {showGoalModal.team === 'yellow' ? '🟡 ' + yellowTeamName : '🔵 ' + blueTeamName} 골 기록
+              </h3>
+              <button
+                onClick={() => {
+                  setShowGoalModal(null)
+                  setSelectedGoalScorer("")
+                  setSelectedAssist("")
+                  setSelectedSemiAssist("")
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              {/* Quarter Selection */}
+              <div>
+                <label className="block text-sm font-medium mb-1">쿼터</label>
+                <div className="grid grid-cols-4 gap-2">
+                  {['Q1', 'Q2', 'Q3', 'Q4'].map(quarter => (
+                    <button
+                      key={quarter}
+                      onClick={() => setShowGoalModal({...showGoalModal, quarter})}
+                      className={`py-1 px-3 rounded text-sm font-medium transition-colors ${
+                        showGoalModal.quarter === quarter
+                          ? 'bg-blue-500 text-white'
+                          : 'bg-gray-200 hover:bg-gray-300'
+                      }`}
+                    >
+                      {quarter}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Goal Scorer */}
+              <div>
+                <label className="block text-sm font-medium mb-1">⚽ 골 (G)</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  value={selectedGoalScorer}
+                  onChange={(e) => setSelectedGoalScorer(e.target.value)}
+                >
+                  <option value="">선택하세요</option>
+                  {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers).map((member, index) => (
+                    <option key={index} value={member}>{member}</option>
+                  ))}
+                </select>
+              </div>
+              
+              {/* Assist */}
+              <div>
+                <label className="block text-sm font-medium mb-1">🎯 어시스트 (AS)</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  value={selectedAssist}
+                  onChange={(e) => setSelectedAssist(e.target.value)}
+                >
+                  <option value="">선택하세요</option>
+                  {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers)
+                    .filter(member => member !== selectedGoalScorer)
+                    .map((member, index) => (
+                      <option key={index} value={member}>{member}</option>
+                    ))}
+                </select>
+              </div>
+              
+              {/* Semi-Assist */}
+              <div>
+                <label className="block text-sm font-medium mb-1">👍 세미어시스트 (SA)</label>
+                <select
+                  className="w-full p-2 border border-gray-300 rounded-lg"
+                  value={selectedSemiAssist}
+                  onChange={(e) => setSelectedSemiAssist(e.target.value)}
+                >
+                  <option value="">선택하세요</option>
+                  {(showGoalModal.team === 'yellow' ? yellowTeamMembers : blueTeamMembers)
+                    .filter(member => member !== selectedAssist)
+                    .map((member, index) => (
+                      <option key={index} value={member}>{member}</option>
+                    ))}
+                </select>
+              </div>
+              
+              {/* Buttons */}
+              <div className="flex gap-2 mt-6">
+                <button
+                  onClick={() => {
+                    setShowGoalModal(null)
+                    setSelectedGoalScorer("")
+                    setSelectedAssist("")
+                    setSelectedSemiAssist("")
+                  }}
+                  className="flex-1 py-2 px-4 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleAddGoalRecord}
+                  disabled={!selectedGoalScorer}
+                  className={`flex-1 py-2 px-4 rounded-lg text-white ${
+                    selectedGoalScorer
+                      ? 'bg-blue-500 hover:bg-blue-600'
+                      : 'bg-gray-300 cursor-not-allowed'
+                  }`}
+                >
+                  완료
+                </button>
+              </div>
             </div>
           </div>
         </div>
