@@ -41,6 +41,7 @@ export default async function RootLayout({
         />
       </head>
       <body
+        id="root-body"
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
 {process.env.CHANNEL_IO_PLUGIN_KEY && (
@@ -57,13 +58,17 @@ export default async function RootLayout({
             }}
           />
         )}
-        <ReduxProviderClient>
-          <Providers>
-            <Analytics />
-            <FirebaseAnalytics />
-            {children}
-          </Providers>
-        </ReduxProviderClient>
+        <div id="app-wrapper">
+          <ReduxProviderClient>
+            <Providers>
+              <Analytics />
+              <FirebaseAnalytics />
+              <main id="main-content">
+                {children}
+              </main>
+            </Providers>
+          </ReduxProviderClient>
+        </div>
       </body>
     </html>
   );

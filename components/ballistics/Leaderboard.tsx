@@ -45,12 +45,12 @@ export default function Leaderboard() {
   ]
 
   return (
-    <Card className="h-full bg-gradient-to-br from-white via-amber-50 to-orange-50 shadow-xl border-2 border-amber-200">
+    <Card id="leaderboard-card" className="h-full bg-gradient-to-br from-white via-amber-50 to-orange-50 shadow-xl border-2 border-amber-200">
       <CardHeader className="bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-t-lg py-2">
         <CardTitle className="text-lg font-bold">🏆 리더보드</CardTitle>
       </CardHeader>
-      <CardContent className="h-[calc(100%-50px)] overflow-auto p-4">
-        <Table>
+      <CardContent id="leaderboard-content" className="h-[calc(100%-50px)] overflow-auto p-4">
+        <Table id="leaderboard-table">
           <TableHeader>
             <TableRow className="bg-gradient-to-r from-amber-100 to-orange-100 border-b-2 border-amber-300">
               <TableHead className="text-center font-bold text-amber-800">순위</TableHead>
@@ -116,7 +116,7 @@ export default function Leaderboard() {
         </Table>
         
         {/* 승점 계산 방법 설명 */}
-        <div className="mt-4 p-4 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg border-2 border-amber-300">
+        <div id="scoring-system-info" className="mt-4 p-4 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg border-2 border-amber-300">
           <h3 className="font-bold text-amber-800 mb-2 text-center">📊 승점 계산 방법</h3>
           <div className="grid grid-cols-4 gap-2 text-sm">
             <div className="flex items-center justify-center p-2 bg-white rounded-lg border border-amber-300">

@@ -14,6 +14,13 @@ export default function AddStats() {
   const [blueTeamMembers, setBlueTeamMembers] = useState<string[]>(["박민수", "최영수"])
   const [unassignedMembers, setUnassignedMembers] = useState<string[]>(["정하늘", "송미래", "조현우", "윤서연"])
   const [showAddPlayerModal, setShowAddPlayerModal] = useState<'yellow' | 'blue' | 'unassigned' | null>(null)
+  const [yellowTeamGoals, setYellowTeamGoals] = useState<Array<{player: string, time: string, quarter: string}>>([
+    {player: "김철수", time: "15'", quarter: "1Q"},
+    {player: "이영희", time: "27'", quarter: "2Q"}
+  ])
+  const [blueTeamGoals, setBlueTeamGoals] = useState<Array<{player: string, time: string, quarter: string}>>([
+    {player: "박민수", time: "42'", quarter: "3Q"}
+  ])
 
 
   const handleTeamNameChange = (team: 'yellow' | 'blue', newName: string) => {
@@ -105,16 +112,16 @@ export default function AddStats() {
   }
 
   return (
-    <div className="grid grid-cols-[1fr_3fr] gap-4 h-full">
+    <div id="add-stats-container" className="grid grid-cols-[1fr_3fr] gap-4 h-full">
       {/* 좌측 영역: 날짜 선택 & 참여자 관리 */}
-      <Card className="h-full bg-gradient-to-br from-white via-blue-50 to-cyan-50 shadow-xl border-2 border-blue-200 flex flex-col">
+      <Card id="game-settings-card" className="h-full bg-gradient-to-br from-white via-blue-50 to-cyan-50 shadow-xl border-2 border-blue-200 flex flex-col">
         <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-lg py-2 flex-shrink-0">
           <CardTitle className="text-lg font-bold">📅 경기 설정</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4">
           <div className="space-y-3">
             {/* 날짜 선택 */}
-            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+            <div id="game-date-section" className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
               <h3 className="font-medium mb-2 text-gray-800">📅 경기 날짜</h3>
               <input 
                 type="date" 
@@ -124,12 +131,12 @@ export default function AddStats() {
             </div>
             
             {/* 참여자 목록 */}
-            <div className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
+            <div id="participants-management-section" className="bg-white p-3 rounded-lg border border-gray-200 shadow-sm">
               <h3 className="font-medium mb-2 text-gray-800">👥 참여자 관리</h3>
               <div className="space-y-2">
                 {/* 팀 배정 영역 */}
                 <div className="space-y-2">
-                  <div className="p-3 border-2 border-yellow-400 rounded-lg bg-yellow-50 shadow-sm">
+                  <div id="yellow-team-card" className="p-3 border-2 border-yellow-400 rounded-lg bg-yellow-50 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-yellow-700 flex items-center">
                         🟡 {yellowTeamName}
@@ -162,7 +169,7 @@ export default function AddStats() {
                     </div>
                   </div>
                   
-                  <div className="p-3 border-2 border-blue-400 rounded-lg bg-blue-50 shadow-sm">
+                  <div id="blue-team-card" className="p-3 border-2 border-blue-400 rounded-lg bg-blue-50 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-blue-700 flex items-center">
                         🔵 {blueTeamName}
@@ -196,7 +203,7 @@ export default function AddStats() {
                   </div>
                   
                   {/* 미배정 인원 카드 */}
-                  <div className="p-3 border-2 border-gray-400 rounded-lg bg-gray-50 shadow-sm">
+                  <div id="unassigned-players-card" className="p-3 border-2 border-gray-400 rounded-lg bg-gray-50 shadow-sm">
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium text-gray-700 flex items-center">
                         ⚪ 미배정 인원
@@ -252,55 +259,79 @@ export default function AddStats() {
       </Card>
       
       {/* 우측 영역: 경기 진행 & 기록 */}
-      <Card className="h-full bg-gradient-to-br from-white via-purple-50 to-pink-50 shadow-xl border-2 border-purple-200 flex flex-col">
+      <Card id="game-record-card" className="h-full bg-gradient-to-br from-white via-purple-50 to-pink-50 shadow-xl border-2 border-purple-200 flex flex-col">
         <CardHeader className="bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-t-lg py-2 flex-shrink-0">
           <CardTitle className="text-lg font-bold">⚽ 경기 기록</CardTitle>
         </CardHeader>
         <CardContent className="flex-1 overflow-y-auto p-4">
           <div className="space-y-4">
             {/* 점수 표시 */}
-            <div className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
-              <div className="flex items-center justify-between text-4xl font-bold">
-                <div 
-                  className="text-yellow-600 bg-yellow-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-200 transition-colors"
-                  onClick={() => handleTeamClick('yellow')}
-                >
-                  🟡 {editingTeam === 'yellow' ? (
-                    <input
-                      type="text"
-                      defaultValue={yellowTeamName}
-                      className="bg-transparent border-b-2 border-yellow-600 outline-none text-4xl font-bold text-yellow-600 w-32"
-                      onBlur={(e) => handleTeamNameChange('yellow', e.target.value)}
-                      onKeyDown={(e) => handleKeyPress(e, 'yellow')}
-                      autoFocus
-                    />
-                  ) : (
-                    yellowTeamName
-                  )} 2
+            <div id="score-display-section" className="bg-white p-6 rounded-lg border border-gray-200 shadow-sm">
+              <div className="flex items-start justify-between">
+                {/* 형광팀 */}
+                <div id="yellow-team-score-area" className="flex-1">
+                  <div 
+                    className="text-yellow-600 bg-yellow-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-yellow-200 transition-colors text-4xl font-bold text-center"
+                    onClick={() => handleTeamClick('yellow')}
+                  >
+                    🟡 {editingTeam === 'yellow' ? (
+                      <input
+                        type="text"
+                        defaultValue={yellowTeamName}
+                        className="bg-transparent border-b-2 border-yellow-600 outline-none text-4xl font-bold text-yellow-600 w-32"
+                        onBlur={(e) => handleTeamNameChange('yellow', e.target.value)}
+                        onKeyDown={(e) => handleKeyPress(e, 'yellow')}
+                        autoFocus
+                      />
+                    ) : (
+                      yellowTeamName
+                    )} {yellowTeamGoals.length}
+                  </div>
+                  {/* 형광팀 골 기록 */}
+                  <div className="mt-3 space-y-1">
+                    {yellowTeamGoals.map((goal, index) => (
+                      <div key={index} className="text-sm text-yellow-700 bg-yellow-50 px-3 py-1 rounded-md border border-yellow-200">
+                        ⚽ {goal.player} ({goal.time}) - {goal.quarter}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="text-gray-600 text-2xl">VS</div>
-                <div 
-                  className="text-blue-600 bg-blue-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-blue-200 transition-colors"
-                  onClick={() => handleTeamClick('blue')}
-                >
-                  🔵 {editingTeam === 'blue' ? (
-                    <input
-                      type="text"
-                      defaultValue={blueTeamName}
-                      className="bg-transparent border-b-2 border-blue-600 outline-none text-4xl font-bold text-blue-600 w-32"
-                      onBlur={(e) => handleTeamNameChange('blue', e.target.value)}
-                      onKeyDown={(e) => handleKeyPress(e, 'blue')}
-                      autoFocus
-                    />
-                  ) : (
-                    blueTeamName
-                  )} 1
+                
+                <div className="text-gray-600 text-2xl mx-4">VS</div>
+                
+                {/* 파랑팀 */}
+                <div id="blue-team-score-area" className="flex-1">
+                  <div 
+                    className="text-blue-600 bg-blue-100 px-4 py-2 rounded-lg shadow-sm cursor-pointer hover:bg-blue-200 transition-colors text-4xl font-bold text-center"
+                    onClick={() => handleTeamClick('blue')}
+                  >
+                    🔵 {editingTeam === 'blue' ? (
+                      <input
+                        type="text"
+                        defaultValue={blueTeamName}
+                        className="bg-transparent border-b-2 border-blue-600 outline-none text-4xl font-bold text-blue-600 w-32"
+                        onBlur={(e) => handleTeamNameChange('blue', e.target.value)}
+                        onKeyDown={(e) => handleKeyPress(e, 'blue')}
+                        autoFocus
+                      />
+                    ) : (
+                      blueTeamName
+                    )} {blueTeamGoals.length}
+                  </div>
+                  {/* 파랑팀 골 기록 */}
+                  <div className="mt-3 space-y-1">
+                    {blueTeamGoals.map((goal, index) => (
+                      <div key={index} className="text-sm text-blue-700 bg-blue-50 px-3 py-1 rounded-md border border-blue-200">
+                        ⚽ {goal.player} ({goal.time}) - {goal.quarter}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
             
             {/* 쿼터별 기록 */}
-            <div className="grid grid-cols-4 gap-3">
+            <div id="quarter-records-section" className="grid grid-cols-4 gap-3">
               {['1Q', '2Q', '3Q', '4Q'].map((quarter, index) => (
                 <div key={quarter} className="bg-white border border-gray-200 rounded-lg p-3 shadow-sm">
                   <h4 className="font-medium text-center mb-2 text-gray-800">{quarter}</h4>
@@ -320,7 +351,7 @@ export default function AddStats() {
             </div>
             
             {/* 주심/부심 선택 */}
-            <div className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
+            <div id="referee-selection-section" className="bg-white p-4 rounded-lg border border-gray-200 shadow-sm">
               <h3 className="font-medium mb-2 text-gray-800">👨‍⚖️ 심판 선택</h3>
               <div className="space-y-3">
                 <div>
@@ -405,7 +436,7 @@ export default function AddStats() {
       
       {/* 플레이어 추가 모달 */}
       {showAddPlayerModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div id="add-player-modal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-medium">

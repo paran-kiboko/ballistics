@@ -44,11 +44,11 @@ function HomeContent() {
     setIsFullscreen(!isFullscreen)
   }
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50" style={{ touchAction: 'manipulation' }}>
+    <div id="home-container" className="min-h-screen w-full bg-gradient-to-br from-green-50 via-blue-50 to-yellow-50" style={{ touchAction: 'manipulation' }}>
       {/* 태블릿 가로 모드 최적화 (2000×1200px) */}
-      <div className="w-full h-screen overflow-hidden">
+      <div id="main-wrapper" className="w-full h-screen overflow-hidden">
         {!isFullscreen && (
-          <header className="flex items-center justify-between px-4 py-2 border-b bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg">
+          <header id="main-header" className="flex items-center justify-between px-4 py-2 border-b bg-gradient-to-r from-green-600 to-blue-600 text-white shadow-lg">
             <div className="flex items-center space-x-3">
               {/* <Image 
                 src="/images/ballistics-logo.png" 
@@ -63,11 +63,11 @@ function HomeContent() {
           </header>
         )}
         
-        <main className={isFullscreen ? "h-screen" : "h-[calc(100vh-60px)]"}>
-          <Tabs value={activeTab} onValueChange={handleTabChange} className="h-full">
-            <div className="bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200 rounded-lg mx-4 mt-3 mb-2 p-1">
+        <main id="main-content-area" className={isFullscreen ? "h-screen" : "h-[calc(100vh-60px)]"}>
+          <Tabs id="main-tabs" value={activeTab} onValueChange={handleTabChange} className="h-full">
+            <div id="tabs-container" className="bg-white/90 backdrop-blur-sm shadow-sm border border-gray-200 rounded-lg mx-4 mt-3 mb-2 p-1">
               <div className="flex items-center justify-between">
-                <TabsList className="grid grid-cols-2 bg-transparent shadow-none border-none h-12 flex-1">
+                <TabsList id="tabs-list" className="grid grid-cols-2 bg-transparent shadow-none border-none h-12 flex-1">
                   <TabsTrigger 
                     value="leaderboard" 
                     className="text-base py-2 px-4 data-[state=active]:bg-gradient-to-r data-[state=active]:from-amber-400 data-[state=active]:to-orange-500 data-[state=active]:text-white font-medium transition-all duration-200 data-[state=inactive]:text-gray-600 data-[state=active]:shadow-md rounded-md h-10 touch-manipulation select-none cursor-pointer"
@@ -84,6 +84,7 @@ function HomeContent() {
                 
                 {/* 전체화면 버튼 - 모든 탭에서 표시 */}
                 <button
+                  id="fullscreen-toggle-btn"
                   onClick={toggleFullscreen}
                   className="ml-2 p-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors touch-manipulation cursor-pointer min-h-[40px] min-w-[40px] flex items-center justify-center"
                   title={isFullscreen ? "일반 화면으로 돌아가기" : "전체화면으로 보기"}
@@ -97,11 +98,11 @@ function HomeContent() {
               </div>
             </div>
             
-            <TabsContent value="leaderboard" className={`m-4 mt-3 ${isFullscreen ? "h-[calc(100%-60px)]" : "h-[calc(100%-60px)]"}`}>
+            <TabsContent id="leaderboard-tab-content" value="leaderboard" className={`m-4 mt-3 ${isFullscreen ? "h-[calc(100%-60px)]" : "h-[calc(100%-60px)]"}`}>
               <Leaderboard />
             </TabsContent>
             
-            <TabsContent value="add-stats" className={`m-4 mt-3 ${isFullscreen ? "h-[calc(100%-60px)]" : "h-[calc(100%-66px)]"}`}>
+            <TabsContent id="add-stats-tab-content" value="add-stats" className={`m-4 mt-3 ${isFullscreen ? "h-[calc(100%-60px)]" : "h-[calc(100%-66px)]"}`}>
               <AddStats />
             </TabsContent>
           </Tabs>

@@ -26,17 +26,19 @@ export const authOptions: NextAuthOptions = {
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
-        AppleProvider({
-            clientId: process.env.APPLE_ID!,
-            clientSecret: Buffer.from(process.env.APPLE_PRIVATE_KEY_BASE64!, 'base64').toString(),
-            // Apple은 JWT 토큰을 사용하기 때문에 추가 설정이 필요
-            authorization: {
-                params: {
-                    scope: "name email",
-                    response_mode: "form_post",
+        ...(process.env.APPLE_ID && process.env.APPLE_PRIVATE_KEY_BASE64 ? [
+            AppleProvider({
+                clientId: process.env.APPLE_ID,
+                clientSecret: Buffer.from(process.env.APPLE_PRIVATE_KEY_BASE64, 'base64').toString(),
+                // Apple은 JWT 토큰을 사용하기 때문에 추가 설정이 필요
+                authorization: {
+                    params: {
+                        scope: "name email",
+                        response_mode: "form_post",
+                    },
                 },
-            },
-        })
+            })
+        ] : [])
     ],
     callbacks: {
         async session({ session, token }) {
