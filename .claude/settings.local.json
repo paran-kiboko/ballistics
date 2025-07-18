@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp:*)",
+      "Bash(node:*)",
+      "Bash(nvm list:*)",
+      "Bash(nvm use:*)",
+      "Bash(source:*)",
+      "Bash(yarn run dev:*)",
+      "Bash(find:*)"
+    ],
+    "deny": []
+  }
+}

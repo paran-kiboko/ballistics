@@ -1,0 +1,62 @@
+{
+    "locale": "ko_KR",
+    "app": {
+        "name": "프로토타입 앱",
+        "slogan": "Next.js 프로토타입 보일러플레이트"
+    },
+    "auth": {
+        "loginApple": "Apple로 로그인하기",
+        "loginGoogle": "Google로 로그인하기",
+        "loginGuest": "Guest로 시작하기",
+        "returnToLogin": "로그인으로 돌아가기",
+        "logout": "로그아웃",
+        "login": "로그인",
+        "signup": "회원가입"
+    },
+    "dashboard": {
+        "welcome": "대시보드",
+        "title": "대시보드",
+        "userInfo": "사용자 정보",
+        "quickActions": "빠른 액션",
+        "appInfo": "애플리케이션 정보"
+    },
+    "navigation": {
+        "home": "홈",
+        "dashboard": "대시보드",
+        "profile": "프로필",
+        "settings": "설정"
+    },
+    "common": {
+        "confirm": "확인",
+        "cancel": "취소",
+        "save": "저장",
+        "edit": "편집",
+        "delete": "삭제",
+        "loading": "로딩 중...",
+        "error": "오류가 발생했습니다",
+        "success": "성공했습니다"
+    },
+    "forms": {
+        "required": "필수 항목입니다",
+        "email": "이메일",
+        "password": "비밀번호",
+        "name": "이름",
+        "submit": "제출"
+    },
+    "settings": {
+        "title": "설정",
+        "profile": "프로필 설정",
+        "account": "계정 설정",
+        "privacy": "개인정보 처리방침",
+        "deleteAccount": "계정 탈퇴",
+        "language": "언어",
+        "theme": "테마"
+    },
+    "messages": {
+        "welcome": "환영합니다!",
+        "loginRequired": "로그인이 필요합니다",
+        "dataNotSaved": "Guest로 시작할 경우 데이터가 저장되지 않습니다",
+        "deleteConfirm": "정말로 삭제하시겠습니까?",
+        "noData": "데이터가 없습니다"
+    }
+}
