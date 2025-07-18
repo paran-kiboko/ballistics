@@ -8,7 +8,8 @@
       "Bash(source:*)",
       "Bash(yarn run dev:*)",
       "Bash(find:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": []
   }
