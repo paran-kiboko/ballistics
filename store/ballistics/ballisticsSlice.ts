@@ -15,10 +15,7 @@ const getInitialState = (): BallisticsState => {
   // 기본 초기 상태
   return {
     users: [
-      { id: '1', name: '김철수' },
-      { id: '2', name: '이영희' },
-      { id: '3', name: '박민수' },
-      { id: '4', name: '최영수' }
+
     ],
     games: [],
     currentGame: null,
