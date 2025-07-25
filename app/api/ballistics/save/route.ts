@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
       });
       
       // Insert or get player IDs
-      for (const playerName of allPlayers) {
+      for (const playerName of Array.from(allPlayers)) {
         const [existingPlayer] = await connection.execute(
           'SELECT player_id FROM player WHERE name = ?',
           [playerName]
