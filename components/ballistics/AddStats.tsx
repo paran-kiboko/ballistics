@@ -670,7 +670,7 @@ export default function AddStats() {
         match_id: number;
         team_id: number | null;
         player_id: number | null;
-        quarter: number;
+        quarter: number | null;
         type: string;
       }>
     };
