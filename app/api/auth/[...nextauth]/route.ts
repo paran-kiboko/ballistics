@@ -9,7 +9,7 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import AppleProvider from "next-auth/providers/apple";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { createClient } from "@supabase/supabase-js";
+// import { createClient } from "@supabase/supabase-js";
 import { JWT } from "next-auth/jwt";
 import { Session } from "next-auth";
 import jwt from "jsonwebtoken";
@@ -40,10 +40,10 @@ declare module "next-auth/jwt" {
     }
 }
 
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// const supabase = createClient(
+//     process.env.NEXT_PUBLIC_SUPABASE_URL!,
+//     process.env.SUPABASE_SERVICE_ROLE_KEY!
+// );
 
 async function getAppleClientSecret() {
     const key = `-----BEGIN PRIVATE KEY-----\n${process.env.APPLE_PRIVATE_KEY}\n-----END PRIVATE KEY-----`;
@@ -195,35 +195,39 @@ const handler = async (req: any, res: any) => {
 
                 if (!user.email) return false;
 
-                try {
-                    // NextAuth의 user.id를 Supabase의 user_id에 저장하는 대신,
-                    // 별도의 필드(예: oauth_id)에 저장하거나
-                    // Supabase가 자동으로 생성한 UUID를 사용
-                    const { data, error } = await supabase
-                        .from("users")
-                        .upsert({
-                            // user_id는 생략하여 Supabase가 자동 생성하도록 함
-                            username: user.name || user.email.split("@")[0],
-                            email: user.email,
-                            updated_at: new Date().toISOString(),
-                            // Google에서 제공하는 ID를 별도 필드에 저장 (선택사항)
-                            // oauth_id: user.id
-                        }, {
-                            onConflict: 'email', // user_id 대신 email을 기준으로 충돌 처리
-                            ignoreDuplicates: false,
-                        })
-                        .select();
+                // Skip Supabase sync for now
+                console.log("Supabase sync skipped - not configured");
+                return true;
+                
+                // try {
+                //     // NextAuth의 user.id를 Supabase의 user_id에 저장하는 대신,
+                //     // 별도의 필드(예: oauth_id)에 저장하거나
+                //     // Supabase가 자동으로 생성한 UUID를 사용
+                //     const { data, error } = await supabase
+                //         .from("users")
+                //         .upsert({
+                //             // user_id는 생략하여 Supabase가 자동 생성하도록 함
+                //             username: user.name || user.email.split("@")[0],
+                //             email: user.email,
+                //             updated_at: new Date().toISOString(),
+                //             // Google에서 제공하는 ID를 별도 필드에 저장 (선택사항)
+                //             // oauth_id: user.id
+                //         }, {
+                //             onConflict: 'email', // user_id 대신 email을 기준으로 충돌 처리
+                //             ignoreDuplicates: false,
+                //         })
+                //         .select();
 
-                    if (error) {
-                        console.error("Error syncing user to Supabase:", error);
-                        return true;
-                    }
+                //     if (error) {
+                //         console.error("Error syncing user to Supabase:", error);
+                //         return true;
+                //     }
 
-                    return true;
-                } catch (error) {
-                    console.error("SignIn error:", error);
-                    return true;
-                }
+                //     return true;
+                // } catch (error) {
+                //     console.error("SignIn error:", error);
+                //     return true;
+                // }
             },
 
         },

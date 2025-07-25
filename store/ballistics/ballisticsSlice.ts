@@ -2,21 +2,32 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { BallisticsState, User, Game, GameStat, Team, Quarter, StatType } from '@/types/ballistics';
 import { saveBallisticsData, loadBallisticsData } from '@/lib/ballistics-storage';
 
-// 로컬 스토리지에서 데이터 로드 시도
-const loadedState = loadBallisticsData();
-
-const initialState: BallisticsState = loadedState || {
-  users: [
-    { id: '1', name: '김철수' },
-    { id: '2', name: '이영희' },
-    { id: '3', name: '박민수' },
-    { id: '4', name: '최영수' }
-  ],
-  games: [],
-  currentGame: null,
-  selectedDate: new Date().toISOString().split('T')[0],
-  activeTab: 'leaderboard',
+// 초기 상태 정의
+const getInitialState = (): BallisticsState => {
+  // 클라이언트 사이드에서만 로컬 스토리지 로드 시도
+  if (typeof window !== 'undefined') {
+    const loadedState = loadBallisticsData();
+    if (loadedState) {
+      return loadedState;
+    }
+  }
+  
+  // 기본 초기 상태
+  return {
+    users: [
+      { id: '1', name: '김철수' },
+      { id: '2', name: '이영희' },
+      { id: '3', name: '박민수' },
+      { id: '4', name: '최영수' }
+    ],
+    games: [],
+    currentGame: null,
+    selectedDate: new Date().toISOString().split('T')[0],
+    activeTab: 'leaderboard',
+  };
 };
+
+const initialState: BallisticsState = getInitialState();
 
 export const ballisticsSlice = createSlice({
   name: 'ballistics',

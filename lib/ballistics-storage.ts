@@ -3,6 +3,9 @@ import { BallisticsState } from '@/types/ballistics';
 const STORAGE_KEY = 'ballistics-data';
 
 export function saveBallisticsData(state: BallisticsState): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
   try {
     const serializedState = JSON.stringify(state);
     localStorage.setItem(STORAGE_KEY, serializedState);
@@ -12,6 +15,9 @@ export function saveBallisticsData(state: BallisticsState): void {
 }
 
 export function loadBallisticsData(): BallisticsState | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
   try {
     const serializedState = localStorage.getItem(STORAGE_KEY);
     if (serializedState === null) {
@@ -25,6 +31,9 @@ export function loadBallisticsData(): BallisticsState | null {
 }
 
 export function clearBallisticsData(): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch (error) {
@@ -34,6 +43,9 @@ export function clearBallisticsData(): void {
 
 // 개별 데이터 저장/로드 함수들
 export function saveUsers(users: any[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
   try {
     localStorage.setItem('ballistics-users', JSON.stringify(users));
   } catch (error) {
@@ -42,6 +54,9 @@ export function saveUsers(users: any[]): void {
 }
 
 export function loadUsers(): any[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
   try {
     const data = localStorage.getItem('ballistics-users');
     return data ? JSON.parse(data) : [];
@@ -52,6 +67,9 @@ export function loadUsers(): any[] {
 }
 
 export function saveGames(games: any[]): void {
+  if (typeof window === 'undefined') {
+    return;
+  }
   try {
     localStorage.setItem('ballistics-games', JSON.stringify(games));
   } catch (error) {
@@ -60,6 +78,9 @@ export function saveGames(games: any[]): void {
 }
 
 export function loadGames(): any[] {
+  if (typeof window === 'undefined') {
+    return [];
+  }
   try {
     const data = localStorage.getItem('ballistics-games');
     return data ? JSON.parse(data) : [];
