@@ -666,7 +666,13 @@ export default function AddStats() {
       ],
       
       // stats table entries
-      stats: []
+      stats: [] as Array<{
+        match_id: number;
+        team_id: number | null;
+        player_id: number | null;
+        quarter: number;
+        type: string;
+      }>
     };
     
     // Add goal, assist, semi-assist stats for yellow team
