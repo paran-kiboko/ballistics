@@ -817,7 +817,7 @@ export default function AddStats() {
   }
 
   return (
-    <div id="add-stats-container" className="grid grid-cols-[1fr_3fr] gap-4 h-full overflow-hidden">
+    <div id="add-stats-container" className="grid grid-cols-[285px_1fr] gap-3.5 h-full overflow-hidden">
       {/* 좌측 영역: 날짜 선택 & Check-In */}
       <Card id="game-settings-card" className="h-full bg-gradient-to-br from-white via-blue-50 to-cyan-50 shadow-xl border-2 border-blue-200 flex flex-col overflow-hidden">
         <CardHeader className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-t-lg py-2 flex-shrink-0">
