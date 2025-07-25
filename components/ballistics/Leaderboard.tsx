@@ -2,47 +2,84 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useEffect, useState } from "react"
+
+interface PlayerStats {
+  player_id: number
+  name: string
+  matches_played: number
+  goals: number
+  assists: number
+  semi_assists: number
+  gk_quarters: number
+  referee_quarters: number
+  assistant_referee_quarters: number
+  no_shows: number
+  points: number
+}
+
+interface LeaderboardData {
+  players: PlayerStats[]
+  teams: any[]
+  recentMatches: any[]
+  mvpCandidates: any[]
+}
 
 export default function Leaderboard() {
-  // 임시 데이터 - 추후 Redux에서 가져올 예정
-  const mockData = [
-    {
-      name: "김철수",
-      gamesPlayed: 12,
-      wins: 8,
-      draws: 2,
-      losses: 2,
-      points: 28,
-      goals: 15,
-      assists: 8,
-      semiAssists: 12,
-      noShows: 0
-    },
-    {
-      name: "이영희",
-      gamesPlayed: 10,
-      wins: 6,
-      draws: 3,
-      losses: 1,
-      points: 25,
-      goals: 12,
-      assists: 10,
-      semiAssists: 8,
-      noShows: 1
-    },
-    {
-      name: "박민수",
-      gamesPlayed: 8,
-      wins: 4,
-      draws: 2,
-      losses: 2,
-      points: 18,
-      goals: 8,
-      assists: 5,
-      semiAssists: 6,
-      noShows: 0
+  const [loading, setLoading] = useState(true)
+  const [data, setData] = useState<LeaderboardData | null>(null)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    fetchLeaderboardData()
+  }, [])
+
+  const fetchLeaderboardData = async () => {
+    try {
+      const response = await fetch('/api/ballistics/leaderboard')
+      const result = await response.json()
+      
+      if (result.success) {
+        setData(result.data)
+      } else {
+        setError(result.error)
+      }
+    } catch (err) {
+      setError('Failed to load leaderboard data')
+    } finally {
+      setLoading(false)
     }
-  ]
+  }
+
+  if (loading) {
+    return (
+      <Card className="h-full bg-gradient-to-br from-white via-amber-50 to-orange-50 shadow-xl border-2 border-amber-200">
+        <CardHeader className="bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-t-lg py-2">
+          <CardTitle className="text-lg font-bold">🏆 리더보드</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-50px)] flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">데이터 로딩 중...</p>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
+  if (error || !data) {
+    return (
+      <Card className="h-full bg-gradient-to-br from-white via-amber-50 to-orange-50 shadow-xl border-2 border-amber-200">
+        <CardHeader className="bg-gradient-to-r from-amber-400 to-orange-500 text-white rounded-t-lg py-2">
+          <CardTitle className="text-lg font-bold">🏆 리더보드</CardTitle>
+        </CardHeader>
+        <CardContent className="h-[calc(100%-50px)] flex items-center justify-center">
+          <p className="text-red-600">데이터를 불러오는 중 오류가 발생했습니다.</p>
+        </CardContent>
+      </Card>
+    )
+  }
+
 
   return (
     <Card id="leaderboard-card" className="h-full bg-gradient-to-br from-white via-amber-50 to-orange-50 shadow-xl border-2 border-amber-200">
@@ -67,11 +104,10 @@ export default function Leaderboard() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {mockData
-              .sort((a, b) => b.points - a.points)
+            {data.players
               .map((player, index) => (
                 <TableRow 
-                  key={player.name} 
+                  key={player.player_id} 
                   className={`hover:bg-gradient-to-r hover:from-amber-50 hover:to-orange-50 border-b border-amber-200 ${
                     index === 0 ? 'bg-gradient-to-r from-yellow-100 to-amber-100' : 
                     index === 1 ? 'bg-gradient-to-r from-gray-100 to-gray-200' :
@@ -85,15 +121,15 @@ export default function Leaderboard() {
                   <TableCell className="font-semibold text-lg text-gray-800">
                     {player.name}
                   </TableCell>
-                  <TableCell className="text-center font-medium">{player.gamesPlayed}</TableCell>
+                  <TableCell className="text-center font-medium">{player.matches_played}</TableCell>
                   <TableCell className="text-center font-semibold text-green-600">
-                    {player.wins}
+                    -
                   </TableCell>
                   <TableCell className="text-center font-semibold text-yellow-600">
-                    {player.draws}
+                    -
                   </TableCell>
                   <TableCell className="text-center font-semibold text-red-600">
-                    {player.losses}
+                    -
                   </TableCell>
                   <TableCell className="text-center font-bold text-amber-700 text-lg">
                     {player.points}
@@ -105,15 +141,31 @@ export default function Leaderboard() {
                     🎯 {player.assists}
                   </TableCell>
                   <TableCell className="text-center font-semibold">
-                    👍 {player.semiAssists}
+                    👍 {player.semi_assists}
                   </TableCell>
                   <TableCell className="text-center font-semibold text-red-600">
-                    ❌ {player.noShows}
+                    ❌ {player.no_shows}
                   </TableCell>
                 </TableRow>
               ))}
           </TableBody>
         </Table>
+        
+        {/* MVP 후보 */}
+        {data.mvpCandidates && data.mvpCandidates.length > 0 && (
+          <div className="mt-4 p-4 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg border-2 border-purple-300">
+            <h3 className="font-bold text-purple-800 mb-2 text-center">🌟 MVP 후보 (경기당 포인트)</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {data.mvpCandidates.map((mvp: any, index: number) => (
+                <div key={index} className="text-center p-2 bg-white rounded-lg border border-purple-300">
+                  <div className="font-bold text-purple-700">{mvp.name}</div>
+                  <div className="text-2xl font-bold text-purple-900">{mvp.points_per_match}</div>
+                  <div className="text-xs text-gray-600">{mvp.matches}경기</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         
         {/* 승점 계산 방법 설명 */}
         <div id="scoring-system-info" className="mt-4 p-4 bg-gradient-to-r from-amber-100 to-orange-100 rounded-lg border-2 border-amber-300">
