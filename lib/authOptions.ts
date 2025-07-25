@@ -21,11 +21,14 @@ if (process.env.NEXT_PUBLIC_SUPABASE_URL &&
 }
 
 export const authOptions: NextAuthOptions = {
+    secret: process.env.NEXTAUTH_SECRET,
     providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        }),
+        ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+            GoogleProvider({
+                clientId: process.env.GOOGLE_CLIENT_ID,
+                clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            })
+        ] : []),
         ...(process.env.APPLE_ID && process.env.APPLE_PRIVATE_KEY_BASE64 ? [
             AppleProvider({
                 clientId: process.env.APPLE_ID,

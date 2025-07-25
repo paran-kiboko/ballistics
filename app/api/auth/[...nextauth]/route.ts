@@ -66,11 +66,14 @@ async function getAppleClientSecret() {
 const handler = async (req: any, res: any) => {
     return await NextAuth(req, res, {
         debug: false,
+        secret: process.env.NEXTAUTH_SECRET,
         providers: [
-            GoogleProvider({
-                clientId: process.env.GOOGLE_CLIENT_ID!,
-                clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            }),
+            ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? [
+                GoogleProvider({
+                    clientId: process.env.GOOGLE_CLIENT_ID,
+                    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+                })
+            ] : []),
             // AppleProvider({
             //     clientId: process.env.APPLE_ID!,          // 반드시 Service ID
             //     clientSecret: await getAppleClientSecret(),       // ES256 JWT
